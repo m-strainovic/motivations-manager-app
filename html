@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Motivations-Manager</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 40px;
+    }
+    .container {
+      max-width: 850px;
+      margin: auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    .question-box {
+      margin-top: 30px;
+    }
+    button {
+      margin: 15px 10px 0 0;
+      padding: 12px 25px;
+      font-size: 16px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    #feedback {
+      font-size: 16px;
+      margin-top: 20px;
+      padding: 15px;
+      border-left: 4px solid #3498db;
+      background-color: #eef6fb;
+      color: #333;
+    }
+    #result {
+      font-size: 22px;
+      margin-top: 30px;
+      text-align: center;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+    #next-btn {
+      display: none;
+      margin-top: 20px;
+      background-color: #2ecc71;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎯 Motivations-Manager</h1>
+    <p>
+      Triff fundierte Entscheidungen für deine Mitarbeitenden. Nach jeder Wahl erhältst du eine Rückmeldung basierend auf den Motivationstheorien von Maslow, Herzberg oder der Self-Determination Theory (SDT = Selbstbestimmungstheorie).
+    </p>
+
+    <div class="question-box" id="quiz-box">
+      <h3 id="question"></h3>
+      <p id="description"></p>
+      <button onclick="answer(1)" id="btn1"></button>
+      <button onclick="answer(2)" id="btn2"></button>
+      <div id="feedback"></div>
+      <button onclick="nextQuestion()" id="next-btn">Weiter</button>
+    </div>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const mitarbeiter = [
+      {
+        name: "Lisa",
+        beschreibung: "sicherheitsorientiert, zuverlässig und risikoscheu",
+        opt1: "Fixes Gehalt mit betrieblicher Altersvorsorge",
+        opt2: "Erfolgsabhängiger Bonus mit Projektrotation",
+        korrekt: 1,
+        theorie:
+          "Maslow: Sicherheitsbedürfnis – stabile Rahmenbedingungen fördern Vertrauen. Herzberg: Hygienefaktoren wie Gehalt und Arbeitsplatzsicherheit verhindern Unzufriedenheit."
+      },
+      {
+        name: "Max",
+        beschreibung: "leistungsstark und zielorientiert",
+        opt1: "Anerkennung im Team und freier Arbeitsstil",
+        opt2: "Zielvereinbarungen mit leistungsbezogener Prämie",
+        korrekt: 2,
+        theorie:
+          "Herzberg: Motivator – Zielerreichung, Verantwortung und Anerkennung steigern die intrinsische Motivation. Leistung wird hier direkt belohnt."
+      },
+      {
+        name: "Ali",
+        beschreibung: "neu im Team, sucht Anschluss und Orientierung",
+        opt1: "Onboarding-Patenschaft und gemeinsame Mittagspausen",
+        opt2: "Frühzeitiger Projekteinstieg mit Homeoffice",
+        korrekt: 1,
+        theorie:
+          "Maslow: Soziale Bedürfnisse – Zugehörigkeit ist zentral. SDT: Bedürfnis nach sozialer Eingebundenheit – durch persönliche Bindungen steigt die Motivation deutlich."
+      },
+      {
+        name: "Sarah",
+        beschreibung: "hat Entwicklungspotenzial und Ambitionen",
+        opt1: "Zugang zu Weiterbildungen und Karrierecoaching",
+        opt2: "Fixe Gehaltserhöhung ohne Rücksprache",
+        korrekt: 1,
+        theorie:
+          "Herzberg: Motivator – berufliche Entwicklung und Anerkennung sind zentrale Treiber für Arbeitszufriedenheit."
+      },
+      {
+        name: "Jonas",
+        beschreibung: "wünscht sich klare Regeln und Stabilität",
+        opt1: "Transparente Kommunikation und faire Lohnstruktur",
+        opt2: "Erfolgsprämien für einzelne Top-Leistungen",
+        korrekt: 1,
+        theorie:
+          "SDT: Bedürfnis nach Autonomie & Fairness – gerechte Bedingungen fördern Motivation. Maslow: Sicherheit – Klarheit und Planbarkeit sind elementar."
+      },
+      {
+        name: "Elena",
+        beschreibung: "möchte Familie und Karriere vereinbaren",
+        opt1: "Flexible Arbeitszeitmodelle und Homeoffice-Tage",
+        opt2: "Extrabonus bei Überstundenleistung",
+        korrekt: 1,
+        theorie:
+          "Maslow: Sicherheits- und Familienbedürfnis – Vereinbarkeit stärkt Bindung. SDT: Autonomie – selbstbestimmte Zeitgestaltung unterstützt Motivation."
+      },
+      {
+        name: "David",
+        beschreibung: "erwartet Feedback und individuelle Anerkennung",
+        opt1: "Monatliche Zielgespräche mit Lobkultur",
+        opt2: "Jahresbonus ohne persönliche Rückmeldung",
+        korrekt: 1,
+        theorie:
+          "Herzberg: Motivator – Lob und Anerkennung wirken direkt auf die Zufriedenheit. SDT: Kompetenz – Rückmeldung hilft, sich wirksam zu fühlen."
+      },
+      {
+        name: "Nina",
+        beschreibung: "arbeitet strukturiert, sucht gezielte Förderung",
+        opt1: "Mentoring-Programm und Entwicklungsgespräche",
+        opt2: "Mehr Verantwortung ohne Anleitung",
+        korrekt: 1,
+        theorie:
+          "Herzberg: Motivator – gezielte Förderung und Aufstiegsmöglichkeiten führen zu intrinsischer Motivation. SDT: Kompetenz erleben stärkt Motivation."
+      },
+      {
+        name: "Tobias",
+        beschreibung: "introvertiert, braucht Ordnung und klare Prozesse",
+        opt1: "Fixe Routinen und klare Aufgabenbeschreibung",
+        opt2: "Abwechslung durch täglich neue Aufgaben",
+        korrekt: 1,
+        theorie:
+          "Maslow: Sicherheitsbedürfnis – verlässliche Strukturen geben Halt. SDT: Autonomie durch klare Erwartungen fördert Vertrauen."
+      },
+      {
+        name: "Amira",
+        beschreibung: "ist kreativ, will eigene Ideen einbringen",
+        opt1: "Innovationsworkshops mit Entscheidungsfreiheit",
+        opt2: "Prozessorientierte Arbeit nach festen Vorgaben",
+        korrekt: 1,
+        theorie:
+          "Maslow: Selbstverwirklichung – Menschen möchten ihr volles Potenzial entfalten. SDT: Autonomie – eigene Entscheidungen motivieren nachhaltig."
+      }
+    ];
+
+    let index = 0;
+    let punkte = 0;
+
+    function showQuestion() {
+      const q = mitarbeiter[index];
+      document.getElementById("question").innerText = `${index + 1}. ${q.name}`;
+      document.getElementById("description").innerText = `${q.name} ist ${q.beschreibung}. Was bietest du an?`;
+      document.getElementById("btn1").innerText = q.opt1;
+      document.getElementById("btn2").innerText = q.opt2;
+      document.getElementById("feedback").innerText = "";
+      document.getElementById("btn1").disabled = false;
+      document.getElementById("btn2").disabled = false;
+      document.getElementById("next-btn").style.display = "none";
+    }
+
+    function answer(antwort) {
+      const q = mitarbeiter[index];
+      const korrekt = antwort === q.korrekt;
+      if (korrekt) punkte++;
+      document.getElementById("feedback").innerText =
+        (korrekt ? "✅ Richtig! " : "❌ Nicht optimal! ") + q.theorie;
+      document.getElementById("btn1").disabled = true;
+      document.getElementById("btn2").disabled = true;
+      document.getElementById("next-btn").style.display = "inline-block";
+    }
+
+    function nextQuestion() {
+      index++;
+      if (index < mitarbeiter.length) {
+        showQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      document.getElementById("quiz-box").style.display = "none";
+      let resultText = `Du hast ${punkte} von ${mitarbeiter.length} Punkten erreicht.\n`;
+      if (punkte === 10) resultText += "🏆 Exzellente Führungskompetenz!";
+      else if (punkte >= 7) resultText += "🎯 Sehr gute Leistung!";
+      else if (punkte >= 4) resultText += "🙂 Ordentlich – aber noch Luft nach oben.";
+      else resultText += "⚠️ Deutliches Entwicklungspotenzial.";
+      document.getElementById("result").innerText = resultText;
+    }
+
+    showQuestion();
+  </script>
+</body>
+</html>
